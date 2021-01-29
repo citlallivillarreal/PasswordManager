@@ -3,7 +3,7 @@ import sys
 import os
 
 master_user = "Lali"
-master_password = "passwordmanger123"
+master_password = "passwordmanager123"
 
 COMMANDS = ["user", "password", "add", "delete", "exit"]
 
@@ -142,7 +142,7 @@ def terminate():
 
 
 def main():
-    db = r'PasswordManger.db'
+    db = r'PasswordManager.db'
     if not os.path.isfile(db):
         connection = sqlite3.connect(db)
         cursor = connection.cursor()
