@@ -1,6 +1,7 @@
 import sqlite3
 import sys
 import os
+import database
 
 master_user = "Lali"
 master_password = "passwordmanger123"
@@ -61,6 +62,9 @@ def user_commands_display():
 
 
 def main():
+    db = r'PasswordManger.db'
+    if not os.path.isfile(db):
+        database.Database()
     user = input("Please provide your user: ")
     user_auth(user)
     print("Access Authorization Completed.\n")
@@ -81,5 +85,7 @@ def main():
             command = input("Enter Command: ")
 
 
+
 if __name__ == "__main__":
     main()
+
