@@ -1,12 +1,11 @@
 import sqlite3
 import sys
 import os
-import database
 
 master_user = "Lali"
 master_password = "passwordmanger123"
 
-COMMANDS = ["user", "password", "add", "delete"]
+COMMANDS = ["user", "password", "add", "delete", "exit"]
 
 
 def user_auth(user):
@@ -58,34 +57,121 @@ def user_commands_display():
     print("--            password - Fetch Password           --")
     print("--            add - ADD Website Information       --")
     print("--            delete - DELETE Record              --")
+    print("--            exit - Exit Program                 --")
     print("----------------------------------------------------\n")
+
+
+def fetch_user(db_file):
+    """
+    Displays the username of a website requested by the user (client).
+
+    :param db_file: the name of the database file
+    :return:
+    """
+    connection = sqlite3.connect(db_file)
+    cursor = connection.cursor()
+    website = input("What website?\n")
+    cursor.execute("""SELECT User_Name FROM PASSWORDS where Website =?""", (website,))
+    username = cursor.fetchone()
+    print(username[0])
+    connection.commit()
+    connection.close()
+
+def fetch_password(db_file):
+    """
+    Displays the password of a website requested by the user (client).
+
+    :param db_file: the name of the database file
+    :return:
+    """
+    connection = sqlite3.connect(db_file)
+    cursor = connection.cursor()
+    website = input("What website?\n")
+    cursor.execute("""SELECT Password FROM PASSWORDS where Website = ?""", (website,))
+    password = cursor.fetchone()
+    print(password[0])
+    connection.commit()
+    connection.close()
+
+def create_record(web, user, password, db_file):
+    """
+    Creates a data entry.
+
+    :param web: client entered website name
+    :param user: client entered username
+    :param password: client entered password
+    :param db_file: the database file
+    :return:
+    """
+    connection = sqlite3.connect(db_file)
+    cursor = connection.cursor()
+    cursor.execute("""INSERT INTO PASSWORDS (Website, User_Name, Password) VALUES (?, ?, ?)""", (web, user, password))
+    connection.commit()
+    connection.close()
+
+
+def add(db_file):
+    """
+    Request clients information: website name, username, and password. Creates a new data entry. ADD uses
+    helper function, CREATE_RECORD.
+
+    :param db_file: the database file
+    :return:
+    """
+    website = input("Website Name: ")
+    username = input("username: ")
+    password = input("password: ")
+    create_record(website, username, password, db_file)
+
+
+def terminate():
+    """
+    Terminates the program if desired by the client.
+
+    :return:
+    """
+    response = input("Anything else? (Yes or No) \n")
+    if response == "No":
+        sys.exit("Thank you, have a nice day!")
+    elif response == "Yes":
+        return
+    elif response != "Yes" or response != "No":
+        print("Invalid command. Try Again")
+        terminate()
+
 
 
 def main():
     db = r'PasswordManger.db'
     if not os.path.isfile(db):
-        database.Database()
-    user = input("Please provide your user: ")
-    user_auth(user)
+        connection = sqlite3.connect(db)
+        cursor = connection.cursor()
+        cursor.execute('''CREATE TABLE PASSWORDS
+                        ([Website] text, [User_Name] text, [Password] text)''')
+        connection.commit()
+        connection.close()
+    username = input("Please provide your user: ")
+    user_auth(username)
     print("Access Authorization Completed.\n")
     user_commands_display()
-    command = input("Enter Command: ")
     while (True):
+        command = input("Enter Command: ")
         if command in COMMANDS:
             if command == "user":
-                pass
+                fetch_user(db)
             elif command == "password":
-                pass
+                fetch_password(db)
             elif command == "add":
+                add(db)
+                terminate()
+            elif command == "delete":
                 pass
             else:
-                pass
+                sys.exit("Thank you, have a nice day!")
         else:
             print("Command Invalid. Try again.")
-            command = input("Enter Command: ")
 
 
 
 if __name__ == "__main__":
     main()
-
