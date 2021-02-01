@@ -123,6 +123,19 @@ def add(db_file):
     password = input("password: ")
     create_record(website, username, password, db_file)
 
+def delete(db_file):
+    """
+    Delete clients username and password information for a particular website
+
+    :param db_file: the database file
+    :return:
+    """
+    connection = sqlite3.connect(db_file)
+    cursor = connection.cursor()
+    website = input("Delete login information from what website?")
+    cursor.execute("""DELETE FROM PASSWORDS WHERE Website = ?""", (website,))
+    connection.commit()
+    connection.close()
 
 def terminate():
     """
@@ -163,13 +176,14 @@ def main():
                 fetch_password(db)
             elif command == "add":
                 add(db)
-                terminate()
             elif command == "delete":
-                pass
+                delete(db)
             else:
                 sys.exit("Thank you, have a nice day!")
+            terminate()
         else:
             print("Command Invalid. Try again.")
+
 
 
 
