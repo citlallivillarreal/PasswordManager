@@ -121,6 +121,10 @@ def add(db_file):
     website = input("Website Name: ")
     username = input("username: ")
     password = input("password: ")
+    if (len(website) | len(username) | len(password)) < 1:
+        print("Invalid input length")
+        add(db_file)
+
     create_record(website, username, password, db_file)
 
 def delete(db_file):
