@@ -1,36 +1,45 @@
 import unittest
 import main
 import sqlite3
-from unittest.mock import patch
+from unittest import mock
+
+
 import os
 
 
-class MyTestCase(unittest.TestCase):
+class MyTestCase(unittest.TestCase, main.Database):
+
+    test_db = r'testPasswordManager'
+    test_database = main.Database('test database', 'testuser', 'testpass', test_db)
 
     @classmethod
     def setUpClass(cls):
-        cls.db = r'testPasswordManager'
-        connection = sqlite3.connect(cls.db)
+
+        connection = sqlite3.connect(cls.test_db)
         cursor = connection.cursor()
         cursor.execute("""CREATE TABLE PASSWORDS
                         ([Website] text, [User_Name] text, [Password] text)""")
+        cursor.executemany("""INSERT INTO PASSWORDS (Website, User_Name, Password) VALUES  (?, ?, ?)""",
+                           [("Youtube", "mary", "marypass1$"),
+                            ("Netflix", "cris", "crispass1$"),
+                            ("Hulu", "lali", "lalipass1$"),
+                            ("Spotify", "darian", "darianpass1$")])
+
         connection.commit()
         connection.close()
 
     @classmethod
     def tearDownClass(cls):
-        cls.db = r'testPasswordManager'
-        os.remove(cls.db)
+        os.remove(cls.test_db)
 
+    @mock.patch("builtins.print")
+    def test_fetch_user(self, mock_print):
+        with mock.patch('builtins.input', side_effect=["Youtube", "Netflix"]):
+            self.test_database.fetch_user()
+            mock_print.assert_called_with("mary")
 
-    def test_create_record(self):
-        web = "Youtube"
-        user = "Mary"
-        password = "pass123"
-        main.create_record(web, user, password, MyTestCase.db)
-
-
-
+            self.test_database.fetch_user()
+            mock_print.assert_called_with("cris")
 
 
 if __name__ == '__main__':
